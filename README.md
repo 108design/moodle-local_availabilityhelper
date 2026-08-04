@@ -17,13 +17,15 @@ It does not use AI, store user data, or modify the saved availability JSON.
 - a predicate and its logical opposite in the same AND/OR group
 - propagation of definite `always` / `never` results through nested groups
 - incomplete Core/editor validation state
+- safe semantic implications for Core profile-field conditions
+- broad/specific redundancy for the common `availability_cohort` condition
 
 ## Architecture
 
 - `amd/src/adapter/yui.js`: isolated private editor integration
 - `amd/src/analyzer.js`: deterministic tree analysis
+- `amd/src/relations.js`: optional semantic relation registry
 - `amd/src/ui.js`: live feedback and detailed report
 - `amd/src/bootstrap.js`: orchestration and debouncing
 
 Install the repository contents as `local/availabilityhelper` in Moodle.
-

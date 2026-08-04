@@ -5,6 +5,7 @@ import {getStrings} from 'core/str';
 const STRING_KEYS = [
     'analysenow', 'analysisdetails', 'analysisok', 'closeanalysis', 'duplicate',
     'emptygroup', 'always', 'never', 'contradiction', 'tautology', 'redundantgroup',
+    'semanticcontradiction', 'semanticredundant', 'semantictautology',
     'incomplete', 'provisional', 'rulepath',
 ];
 
@@ -149,4 +150,3 @@ export const render = (editor, analysis) => {
         renderDetails();
     }
 };
-

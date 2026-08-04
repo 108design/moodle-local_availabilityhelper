@@ -37,5 +37,33 @@ describe('local_availabilityhelper/analyzer', () => {
             {code: 'incomplete', severity: 'warning', path: []},
         ]);
     });
-});
 
+    it('finds incompatible profile-field operators', () => {
+        const result = analyse({
+            op: '&',
+            c: [
+                {type: 'profile', sf: 'institution', op: 'isequalto', v: 'nix'},
+                {type: 'profile', sf: 'institution', op: 'doesnotcontain', v: 'nix'},
+            ],
+        });
+
+        expect(result.state).toBe('never');
+        expect(result.findings.map(item => item.code)).toContain('semanticcontradiction');
+    });
+
+    it('finds an any-cohort condition redundant beside a specific cohort', () => {
+        const result = analyse({
+            op: '!&',
+            c: [
+                {type: 'cohort'},
+                {type: 'cohort', id: 42},
+            ],
+        });
+
+        expect(result.findings).toContainEqual({
+            code: 'semanticredundant',
+            severity: 'warning',
+            path: [0],
+        });
+    });
+});
