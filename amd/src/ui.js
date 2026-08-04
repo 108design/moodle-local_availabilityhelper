@@ -6,7 +6,11 @@ const STRING_KEYS = [
     'analysenow', 'analysisdetails', 'analysisok', 'closeanalysis', 'duplicate',
     'emptygroup', 'always', 'never', 'contradiction', 'tautology', 'redundantgroup',
     'semanticcontradiction', 'semanticredundant', 'semantictautology',
-    'incomplete', 'provisional', 'rulepath',
+    'tipallcohorts', 'tipcomplex', 'tipdoublenegation', 'tipheading', 'tipnegatedgroup',
+    'incomplete', 'provisional', 'rulepath', 'scenarioavailable', 'scenariocase',
+    'scenariofiltered', 'scenarioheading', 'scenariolegend', 'scenariono',
+    'scenarionote', 'scenariorepresentative', 'scenarioresult', 'scenariounavailable', 'scenarioyes',
+    'tipsavailable',
 ];
 
 let strings;
@@ -56,26 +60,119 @@ const markFindings = (editor, findings) => {
     });
 };
 
+const appendFindingList = (container, findings) => {
+    const list = document.createElement('ul');
+    findings.forEach(result => {
+        const item = document.createElement('li');
+        const prefix = pathText(result.path);
+        item.textContent = `${prefix ? `${prefix}: ` : ''}${text(result.code)}`;
+        list.append(item);
+    });
+    container.append(list);
+};
+
+const atomLabel = (editor, atom, index) => {
+    const node = nodeForPath(editor, atom.path);
+    const controls = node ? [...node.querySelectorAll('.availability-plugincontrols select, ' +
+        '.availability-plugincontrols input:not([type="hidden"])')] : [];
+    const values = controls.map(control => {
+        if (control.tagName === 'SELECT') {
+            return control.selectedOptions[0]?.textContent.trim() || '';
+        }
+        if (control.type === 'checkbox') {
+            return control.checked ? text('scenarioyes') : text('scenariono');
+        }
+        return control.value?.trim() || '';
+    }).filter(Boolean);
+    return values.length ? values.join(' · ') : `${text('rulepath').replace('{$a}', index + 1)}`;
+};
+
+const appendScenarios = (container, editor, scenarios) => {
+    if (!scenarios || !scenarios.atoms.length || !scenarios.rows.length) {
+        return;
+    }
+    const heading = document.createElement('h5');
+    heading.textContent = text('scenarioheading');
+    container.append(heading);
+
+    const note = document.createElement('p');
+    note.className = 'small text-muted';
+    note.textContent = scenarios.complete ? text('scenarionote') : text('scenariorepresentative');
+    container.append(note);
+    if (scenarios.filtered) {
+        const filtered = document.createElement('p');
+        filtered.className = 'small text-muted';
+        filtered.textContent = text('scenariofiltered');
+        container.append(filtered);
+    }
+
+    const legendHeading = document.createElement('h6');
+    legendHeading.textContent = text('scenariolegend');
+    container.append(legendHeading);
+    const legend = document.createElement('dl');
+    legend.className = 'local-availabilityhelper__legend';
+    scenarios.atoms.forEach((atom, index) => {
+        const term = document.createElement('dt');
+        term.textContent = `R${index + 1}`;
+        const description = document.createElement('dd');
+        description.textContent = atomLabel(editor, atom, index);
+        legend.append(term, description);
+    });
+    container.append(legend);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'table-responsive';
+    const table = document.createElement('table');
+    table.className = 'table table-sm table-striped local-availabilityhelper__scenarios';
+    const head = table.createTHead().insertRow();
+    [text('scenariocase'), ...scenarios.atoms.map((atom, index) => `R${index + 1}`),
+        text('scenarioresult')].forEach(label => {
+        const cell = document.createElement('th');
+        cell.scope = 'col';
+        cell.textContent = label;
+        head.append(cell);
+    });
+    const body = table.createTBody();
+    scenarios.rows.forEach((row, rowIndex) => {
+        const tableRow = body.insertRow();
+        const caseCell = document.createElement('th');
+        caseCell.scope = 'row';
+        caseCell.textContent = String(rowIndex + 1);
+        tableRow.append(caseCell);
+        row.values.forEach(value => {
+            const cell = tableRow.insertCell();
+            cell.textContent = value ? text('scenarioyes') : text('scenariono');
+        });
+        const resultCell = tableRow.insertCell();
+        resultCell.textContent = row.result ? text('scenarioavailable') : text('scenariounavailable');
+        resultCell.className = row.result ? 'text-success' : 'text-danger';
+    });
+    wrapper.append(table);
+    container.append(wrapper);
+};
+
 const renderDetails = () => {
     details.replaceChildren();
     const heading = document.createElement('h5');
     heading.textContent = text('analysisdetails');
     details.append(heading);
 
-    const list = document.createElement('ul');
-    if (!latest.findings.length) {
-        const item = document.createElement('li');
-        item.textContent = text('analysisok');
-        list.append(item);
+    const findings = latest.findings.filter(item => item.severity !== 'tip');
+    const tips = latest.findings.filter(item => item.severity === 'tip');
+    if (!findings.length) {
+        const ok = document.createElement('p');
+        ok.textContent = text('analysisok');
+        details.append(ok);
     } else {
-        latest.findings.forEach(result => {
-            const item = document.createElement('li');
-            const prefix = pathText(result.path);
-            item.textContent = `${prefix ? `${prefix}: ` : ''}${text(result.code)}`;
-            list.append(item);
-        });
+        appendFindingList(details, findings);
     }
-    details.append(list);
+    if (tips.length) {
+        const tipHeading = document.createElement('h5');
+        tipHeading.textContent = text('tipheading');
+        details.append(tipHeading);
+        appendFindingList(details, tips);
+    }
+    appendScenarios(details, panel.closest('.availability-field'), latest.scenarios);
 };
 
 const setExpanded = expanded => {
@@ -133,14 +230,15 @@ export const initialise = async editor => {
  */
 export const render = (editor, analysis) => {
     latest = analysis;
-    const count = analysis.findings.length;
+    const issueCount = analysis.findings.filter(item => item.severity !== 'tip').length;
+    const tipCount = analysis.findings.length - issueCount;
     if (analysis.incomplete) {
         summary.textContent = `${text('provisional')}: ${text('incomplete')}`;
-    } else if (!count) {
-        summary.textContent = text('analysisok');
+    } else if (!issueCount) {
+        summary.textContent = `${text('analysisok')}${tipCount ? ` ${text('tipsavailable')}` : ''}`;
     } else {
         summary.textContent = analysis.state === 'never' ? text('never') :
-            analysis.state === 'always' ? text('always') : `${count}: ${text('analysisdetails')}`;
+            analysis.state === 'always' ? text('always') : `${issueCount}: ${text('analysisdetails')}`;
     }
     const definite = analysis.state === 'never' || analysis.state === 'always';
     panel.classList.toggle('alert-danger', definite);

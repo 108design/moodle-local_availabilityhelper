@@ -25,6 +25,29 @@
     margin-bottom: 0;
 }
 
+.local-availabilityhelper__details h5:not(:first-child) {
+    margin-top: 1.25rem;
+}
+
+.local-availabilityhelper__legend {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.local-availabilityhelper__legend dt,
+.local-availabilityhelper__legend dd {
+    margin-bottom: .25rem;
+}
+
+.local-availabilityhelper__scenarios th,
+.local-availabilityhelper__scenarios td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
 .local-availabilityhelper__marker {
     border-inline-start: .25rem solid var(--bs-warning, #f0ad4e);
     padding-inline-start: .5rem;
@@ -33,4 +56,3 @@
 .local-availabilityhelper__marker--danger {
     border-inline-start-color: var(--bs-danger, #dc3545);
 }
-

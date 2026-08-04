@@ -47,6 +47,16 @@ const opposite = signature => signature.startsWith('not(') ? signature.slice(4, 
 
 const addFinding = (findings, code, severity, path) => findings.push({code, severity, path});
 
+const literal = node => {
+    let current = node;
+    let negated = false;
+    while (isGroup(current) && current.c.length === 1) {
+        negated = negated !== current.op.startsWith('!');
+        current = current.c[0];
+    }
+    return isGroup(current) ? null : {predicate: current, negated};
+};
+
 const analyseNode = (node, path, findings, root = false) => {
     if (!isGroup(node)) {
         return 'possible';
@@ -66,6 +76,19 @@ const analyseNode = (node, path, findings, root = false) => {
 
     if (!negated && children.length === 1 && !root) {
         addFinding(findings, 'redundantgroup', 'warning', path);
+    }
+    if (negated && children.length > 1) {
+        addFinding(findings, 'tipnegatedgroup', 'tip', path);
+    }
+    if (negated && children.some(child => isGroup(child) && child.op.startsWith('!'))) {
+        addFinding(findings, 'tipdoublenegation', 'tip', path);
+    }
+
+    const literals = children.map(literal);
+    const specificCohorts = literals.filter(item => item && !item.negated &&
+        item.predicate.type === 'cohort' && item.predicate.id !== undefined);
+    if (!negated && operator === 'and' && specificCohorts.length > 1) {
+        addFinding(findings, 'tipallcohorts', 'tip', path);
     }
 
     const states = children.map((child, index) => analyseNode(child, [...path, index], findings));
@@ -156,6 +179,21 @@ export const analyse = tree => {
         };
     }
     const state = analyseNode(tree, [], findings, true);
+
+    const countTree = node => {
+        if (!isGroup(node)) {
+            return {leaves: 1, depth: 0};
+        }
+        const children = node.c.map(countTree);
+        return {
+            leaves: children.reduce((total, child) => total + child.leaves, 0),
+            depth: 1 + Math.max(0, ...children.map(child => child.depth)),
+        };
+    };
+    const size = countTree(tree);
+    if (size.leaves >= 5 || size.depth >= 3) {
+        findings.push({code: 'tipcomplex', severity: 'tip', path: []});
+    }
 
     if ((state === 'always' || state === 'never') &&
             !findings.some(item => item.code === state)) {

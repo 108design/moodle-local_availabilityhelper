@@ -2,6 +2,7 @@
 
 import {connect} from './adapter/yui';
 import {analyse} from './analyzer';
+import {create as createScenarios} from './scenarios';
 import * as UI from './ui';
 
 let timer;
@@ -14,8 +15,9 @@ export const init = () => {
         window.clearTimeout(timer);
         timer = window.setTimeout(async() => {
             await UI.initialise(editor);
-            UI.render(editor, analyse(tree));
+            const analysis = analyse(tree);
+            analysis.scenarios = analysis.incomplete ? null : createScenarios(tree);
+            UI.render(editor, analysis);
         }, 350);
     });
 };
-

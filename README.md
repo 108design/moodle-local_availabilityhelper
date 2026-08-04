@@ -19,12 +19,17 @@ It does not use AI, store user data, or modify the saved availability JSON.
 - incomplete Core/editor validation state
 - safe semantic implications for Core profile-field conditions
 - broad/specific redundancy for the common `availability_cohort` condition
+- complete abstract scenario tables for up to four distinct predicates
+- representative boundary scenarios for larger rule trees
+- omission of scenarios that violate known semantic relationships
+- clearly separated maintenance and testing tips
 
 ## Architecture
 
 - `amd/src/adapter/yui.js`: isolated private editor integration
 - `amd/src/analyzer.js`: deterministic tree analysis
 - `amd/src/relations.js`: optional semantic relation registry
+- `amd/src/scenarios.js`: truth-table and boundary-case generation
 - `amd/src/ui.js`: live feedback and detailed report
 - `amd/src/bootstrap.js`: orchestration and debouncing
 
