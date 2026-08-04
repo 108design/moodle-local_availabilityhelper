@@ -62,7 +62,7 @@ const findingDescription = (editor, finding) => {
 };
 
 const clearCallouts = editor => {
-    editor.querySelectorAll('.local-availabilityhelper__callout').forEach(node => node.remove());
+    document.querySelectorAll('.local-availabilityhelper__callout').forEach(node => node.remove());
     editor.querySelectorAll('.local-availabilityhelper__marker').forEach(node => {
         node.classList.remove(
             'local-availabilityhelper__marker',
@@ -79,17 +79,14 @@ const placeCallout = (editor, node, callout) => {
         return;
     }
 
-    editor.classList.add('local-availabilityhelper__editor');
-    editor.append(callout);
-    const editorRect = editor.getBoundingClientRect();
+    document.body.append(callout);
     const nodeRect = node.getBoundingClientRect();
-    callout.style.top = `${nodeRect.top - editorRect.top + editor.scrollTop}px`;
+    callout.style.top = `${nodeRect.top}px`;
     if (window.getComputedStyle(editor).direction === 'rtl') {
         callout.classList.add('local-availabilityhelper__callout--rtl');
-        callout.style.left = `${nodeRect.right - editorRect.left + DESKTOP_CALLOUT_GAP}px`;
+        callout.style.left = `${nodeRect.right + DESKTOP_CALLOUT_GAP}px`;
     } else {
-        callout.style.left = `${nodeRect.left - editorRect.left + editor.scrollLeft -
-            callout.offsetWidth - DESKTOP_CALLOUT_GAP}px`;
+        callout.style.left = `${nodeRect.left - callout.offsetWidth - DESKTOP_CALLOUT_GAP}px`;
     }
 };
 
@@ -357,6 +354,20 @@ export const initialise = async editor => {
     panel.append(details);
     editor.append(panel);
     setExpanded(false);
+
+    let positioningQueued = false;
+    const repositionCallouts = () => {
+        if (positioningQueued || !latest || !window.matchMedia(DESKTOP_CALLOUT_QUERY).matches) {
+            return;
+        }
+        positioningQueued = true;
+        window.requestAnimationFrame(() => {
+            positioningQueued = false;
+            renderCallouts(editor, latest.findings);
+        });
+    };
+    window.addEventListener('resize', repositionCallouts);
+    document.addEventListener('scroll', repositionCallouts, true);
 };
 
 /**

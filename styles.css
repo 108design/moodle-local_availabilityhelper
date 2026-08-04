@@ -72,12 +72,8 @@
     border-inline-start-color: var(--bs-info, #0dcaf0);
 }
 
-.local-availabilityhelper__editor {
-    position: relative;
-}
-
 .local-availabilityhelper__callout {
-    position: absolute;
+    position: fixed;
     z-index: 20;
     inset: auto;
     width: clamp(14rem, 22vw, 20rem);
