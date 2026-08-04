@@ -45,7 +45,13 @@ const expression = node => {
 
 const opposite = signature => signature.startsWith('not(') ? signature.slice(4, -1) : `not(${signature})`;
 
-const addFinding = (findings, code, severity, path) => findings.push({code, severity, path});
+const addFinding = (findings, code, severity, path, relatedPaths) => {
+    const finding = {code, severity, path};
+    if (relatedPaths) {
+        finding.relatedPaths = relatedPaths;
+    }
+    findings.push(finding);
+};
 
 const literal = node => {
     let current = node;
@@ -92,11 +98,14 @@ const analyseNode = (node, path, findings, root = false) => {
     }
 
     const states = children.map((child, index) => analyseNode(child, [...path, index], findings));
-    const seen = new Set();
+    const seen = new Map();
     const redundant = new Set();
     let complementFound = false;
     let semanticContradiction = false;
     let semanticTautology = false;
+    let complementPair = null;
+    let semanticContradictionPair = null;
+    let semanticTautologyPair = null;
 
     children.forEach((child, index) => {
         const signature = expression(child);
@@ -105,8 +114,11 @@ const analyseNode = (node, path, findings, root = false) => {
         }
         if (seen.has(opposite(signature))) {
             complementFound = true;
+            complementPair = complementPair || [seen.get(opposite(signature)), index];
         }
-        seen.add(signature);
+        if (!seen.has(signature)) {
+            seen.set(signature, index);
+        }
     });
 
     for (let leftIndex = 0; leftIndex < children.length; leftIndex++) {
@@ -117,6 +129,12 @@ const analyseNode = (node, path, findings, root = false) => {
             }
             semanticContradiction = semanticContradiction || relation.incompatible;
             semanticTautology = semanticTautology || relation.exhaustive;
+            if (relation.incompatible && !semanticContradictionPair) {
+                semanticContradictionPair = [leftIndex, rightIndex];
+            }
+            if (relation.exhaustive && !semanticTautologyPair) {
+                semanticTautologyPair = [leftIndex, rightIndex];
+            }
             if (operator === 'and') {
                 if (relation.leftImpliesRight) {
                     redundant.add(rightIndex);
@@ -140,7 +158,9 @@ const analyseNode = (node, path, findings, root = false) => {
         if (!complementFound) {
             code = operator === 'and' ? 'semanticcontradiction' : 'semantictautology';
         }
-        addFinding(findings, code, 'danger', path);
+        const pair = complementPair || (operator === 'and' ? semanticContradictionPair : semanticTautologyPair);
+        const relatedPaths = pair ? pair.map(index => [...path, index]) : null;
+        addFinding(findings, code, 'danger', path, relatedPaths);
     } else if (operator === 'and' && states.includes('never')) {
         state = 'never';
     } else if (operator === 'or' && states.includes('always')) {

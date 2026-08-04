@@ -48,7 +48,12 @@ describe('local_availabilityhelper/analyzer', () => {
         });
 
         expect(result.state).toBe('never');
-        expect(result.findings.map(item => item.code)).toContain('semanticcontradiction');
+        expect(result.findings).toContainEqual({
+            code: 'semanticcontradiction',
+            severity: 'danger',
+            path: [],
+            relatedPaths: [[0], [1]],
+        });
     });
 
     it('finds an any-cohort condition redundant beside a specific cohort', () => {

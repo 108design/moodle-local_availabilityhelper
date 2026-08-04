@@ -10,6 +10,7 @@ const STRING_KEYS = [
     'refreshanalysis', 'incomplete', 'provisional', 'rulepath', 'scenarioavailable', 'scenariocase',
     'scenariofiltered', 'scenarioheading', 'scenariolegend', 'scenariono', 'scenarionote',
     'scenariorepresentative', 'scenarioresult', 'scenariounavailable', 'scenarioyes',
+    'conflictcause', 'coveragecause',
 ];
 
 let strings;
@@ -46,6 +47,17 @@ const severityClass = severity => severity === 'danger' ? 'danger' : severity ==
 const severityHeading = severity => severity === 'danger' ? text('problemheading') :
     severity === 'tip' ? text('tipheading') : text('warningheading');
 
+const findingDescription = (editor, finding) => {
+    if (!finding.relatedPaths || finding.relatedPaths.length !== 2) {
+        return text(finding.code);
+    }
+    const labels = finding.relatedPaths.map((path, index) => atomLabel(editor, {path}, index));
+    const key = ['tautology', 'semantictautology'].includes(finding.code) ? 'coveragecause' : 'conflictcause';
+    return text(key)
+        .replace('{$a->left}', labels[0])
+        .replace('{$a->right}', labels[1]);
+};
+
 const clearCallouts = editor => {
     editor.querySelectorAll('.local-availabilityhelper__callout').forEach(node => node.remove());
     editor.querySelectorAll('.local-availabilityhelper__marker').forEach(node => {
@@ -65,17 +77,20 @@ const renderCallouts = (editor, findings) => {
         // Root-level findings describe the rule set as a whole. They belong in
         // the summary, not beside the complete editor where a callout implies
         // a more specific origin than the analyser can prove.
-        if (!item.path.length) {
+        const paths = item.relatedPaths?.length ? item.relatedPaths : [item.path];
+        if (!paths.some(path => path.length)) {
             return;
         }
-        const node = nodeForPath(editor, item.path);
-        if (!node) {
-            return;
-        }
-        if (!grouped.has(node)) {
-            grouped.set(node, []);
-        }
-        grouped.get(node).push(item);
+        paths.forEach(path => {
+            const node = nodeForPath(editor, path);
+            if (!node) {
+                return;
+            }
+            if (!grouped.has(node)) {
+                grouped.set(node, []);
+            }
+            grouped.get(node).push(item);
+        });
     });
 
     grouped.forEach((items, node) => {
@@ -93,7 +108,7 @@ const renderCallouts = (editor, findings) => {
         const list = document.createElement('ul');
         items.forEach(item => {
             const listItem = document.createElement('li');
-            listItem.textContent = text(item.code);
+            listItem.textContent = findingDescription(editor, item);
             list.append(listItem);
         });
         callout.append(list);
@@ -101,7 +116,7 @@ const renderCallouts = (editor, findings) => {
     });
 };
 
-const appendFindingAlert = (container, findings, severity) => {
+const appendFindingAlert = (container, editor, findings, severity) => {
     if (!findings.length) {
         return;
     }
@@ -115,14 +130,14 @@ const appendFindingAlert = (container, findings, severity) => {
     findings.forEach(result => {
         const item = document.createElement('li');
         const prefix = pathText(result.path);
-        item.textContent = `${prefix ? `${prefix}: ` : ''}${text(result.code)}`;
+        item.textContent = `${prefix ? `${prefix}: ` : ''}${findingDescription(editor, result)}`;
         list.append(item);
     });
     block.append(list);
     container.append(block);
 };
 
-const atomLabel = (editor, atom, index) => {
+function atomLabel(editor, atom, index) {
     const node = nodeForPath(editor, atom.path);
     const controls = node ? [...node.querySelectorAll('.availability-plugincontrols select, ' +
         '.availability-plugincontrols input:not([type="hidden"])')] : [];
@@ -136,7 +151,7 @@ const atomLabel = (editor, atom, index) => {
         return control.value?.trim() || '';
     }).filter(Boolean);
     return values.length ? values.join(' · ') : text('rulepath').replace('{$a}', index + 1);
-};
+}
 
 const appendScenarios = (container, editor, scenarios) => {
     if (!scenarios || !scenarios.atoms.length || !scenarios.rows.length) {
@@ -207,6 +222,7 @@ const appendScenarios = (container, editor, scenarios) => {
 
 const renderDetails = () => {
     details.replaceChildren();
+    const editor = panel.closest('.availability-field');
     const heading = document.createElement('h5');
     heading.textContent = text('analysisdetails');
     details.append(heading);
@@ -220,10 +236,10 @@ const renderDetails = () => {
         ok.textContent = text('analysisok');
         details.append(ok);
     }
-    appendFindingAlert(details, problems, 'danger');
-    appendFindingAlert(details, warnings, 'warning');
-    appendFindingAlert(details, tips, 'tip');
-    appendScenarios(details, panel.closest('.availability-field'), report.scenarios);
+    appendFindingAlert(details, editor, problems, 'danger');
+    appendFindingAlert(details, editor, warnings, 'warning');
+    appendFindingAlert(details, editor, tips, 'tip');
+    appendScenarios(details, editor, report.scenarios);
 };
 
 const setExpanded = expanded => {
@@ -261,8 +277,10 @@ const renderSummary = analysis => {
         appendSummaryAlert('success', text('analysisok'), tips.length ? text('tipsavailable') : '');
     }
     if (problems.length) {
-        const message = analysis.state === 'never' ? text('never') :
-            analysis.state === 'always' ? text('always') : `${problems.length}`;
+        const specific = problems.find(item => item.relatedPaths?.length === 2);
+        const message = specific ? findingDescription(panel.closest('.availability-field'), specific) :
+            analysis.state === 'never' ? text('never') : analysis.state === 'always' ? text('always') :
+                `${problems.length}`;
         appendSummaryAlert('danger', text('problemheading'), message);
     }
     if (warnings.length) {
