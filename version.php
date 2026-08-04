@@ -12,8 +12,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_availabilityhelper';
-$plugin->version = 2026080404;
+$plugin->version = 2026080500;
 $plugin->requires = 2024100700; // Moodle 4.5.
 $plugin->supported = [405, 502];
 $plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.3.1';
+$plugin->release = '0.3.2';
