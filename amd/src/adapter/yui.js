@@ -1,0 +1,73 @@
+// This file is part of Moodle - http://moodle.org/
+
+/**
+ * Moodle 4.5-5.2 adapter for the YUI availability editor.
+ *
+ * @module local_availabilityhelper/adapter/yui
+ */
+
+const FIELD_SELECTOR = '#id_availabilityconditionsjson';
+const EDITOR_SELECTOR = '.availability-field';
+const RETRY_LIMIT = 100;
+const RETRY_DELAY = 100;
+
+const parse = field => {
+    try {
+        return JSON.parse(field.value || '');
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Connects to the current core editor and reports every committed editor update.
+ *
+ * @param {Function} onChange Receives tree, editor element and form
+ * @returns {Promise<boolean>}
+ */
+export const connect = onChange => new Promise(resolve => {
+    const field = document.querySelector(FIELD_SELECTOR);
+    if (!field) {
+        resolve(false);
+        return;
+    }
+
+    let attempts = 0;
+    const waitForEditor = () => {
+        const moodleForm = window.M && window.M.core_availability && window.M.core_availability.form;
+        const editor = document.querySelector(EDITOR_SELECTOR);
+        if (!moodleForm || !moodleForm.rootList || !editor) {
+            attempts++;
+            if (attempts < RETRY_LIMIT) {
+                window.setTimeout(waitForEditor, RETRY_DELAY);
+            } else {
+                resolve(false);
+            }
+            return;
+        }
+
+        const notify = () => {
+            const tree = parse(field);
+            if (tree) {
+                onChange(tree, editor, field.form);
+            }
+        };
+
+        if (!moodleForm.availabilityHelperOriginalUpdate) {
+            moodleForm.availabilityHelperOriginalUpdate = moodleForm.update;
+            moodleForm.update = function(...args) {
+                const result = this.availabilityHelperOriginalUpdate.apply(this, args);
+                notify();
+                return result;
+            };
+        }
+
+        if (field.form) {
+            field.form.addEventListener('submit', notify, {capture: true});
+        }
+        notify();
+        resolve(true);
+    };
+
+    waitForEditor();
+});

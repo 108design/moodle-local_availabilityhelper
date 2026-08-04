@@ -1,0 +1,36 @@
+.local-availabilityhelper {
+    margin-top: 1rem;
+}
+
+.local-availabilityhelper__summary {
+    margin-bottom: .75rem;
+}
+
+.local-availabilityhelper__actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+
+.local-availabilityhelper__details {
+    margin-top: .75rem;
+}
+
+.local-availabilityhelper__details[hidden] {
+    display: none;
+}
+
+.local-availabilityhelper__details ul {
+    margin-bottom: 0;
+}
+
+.local-availabilityhelper__marker {
+    border-inline-start: .25rem solid var(--bs-warning, #f0ad4e);
+    padding-inline-start: .5rem;
+}
+
+.local-availabilityhelper__marker--danger {
+    border-inline-start-color: var(--bs-danger, #dc3545);
+}
+
