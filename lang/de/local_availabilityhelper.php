@@ -12,8 +12,12 @@
 $string['pluginname'] = 'Verfügbarkeitsprüfung';
 $string['analysenow'] = 'Regelwerk prüfen';
 $string['analysisdetails'] = 'Ausführliche Regelanalyse';
-$string['analysisok'] = 'Keine sicheren logischen Probleme erkannt.';
+$string['analysisok'] = 'Keine gesicherten logischen Probleme erkannt.';
 $string['closeanalysis'] = 'Details schließen';
+$string['showdetails'] = 'Details anzeigen';
+$string['refreshanalysis'] = 'Analyse aktualisieren';
+$string['problemheading'] = 'Logikproblem';
+$string['warningheading'] = 'Warnung';
 $string['duplicate'] = 'Diese Regel ist mit einer vorherigen Regel derselben Gruppe identisch und redundant.';
 $string['emptygroup'] = 'Diese verschachtelte Regelgruppe ist leer und ungültig.';
 $string['always'] = 'Diese Regelgruppe wird immer zutreffen.';

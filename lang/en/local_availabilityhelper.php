@@ -12,8 +12,12 @@
 $string['pluginname'] = 'Availability helper';
 $string['analysenow'] = 'Check rule set';
 $string['analysisdetails'] = 'Detailed rule analysis';
-$string['analysisok'] = 'No definite logical problems were found.';
+$string['analysisok'] = 'No confirmed logical problems were found.';
 $string['closeanalysis'] = 'Close details';
+$string['showdetails'] = 'Show details';
+$string['refreshanalysis'] = 'Refresh analysis';
+$string['problemheading'] = 'Logic problem';
+$string['warningheading'] = 'Warning';
 $string['duplicate'] = 'This rule is identical to an earlier rule in the same group and is redundant.';
 $string['emptygroup'] = 'This nested rule group is empty and invalid.';
 $string['always'] = 'This rule group will always be true.';

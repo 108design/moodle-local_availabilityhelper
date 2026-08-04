@@ -6,6 +6,10 @@
     margin-bottom: .75rem;
 }
 
+.local-availabilityhelper__summary .alert {
+    margin-bottom: .5rem;
+}
+
 .local-availabilityhelper__actions {
     display: flex;
     align-items: center;
@@ -21,8 +25,10 @@
     display: none;
 }
 
-.local-availabilityhelper__details ul {
+.local-availabilityhelper__details .alert ul,
+.local-availabilityhelper__callout ul {
     margin-bottom: 0;
+    padding-inline-start: 1.25rem;
 }
 
 .local-availabilityhelper__details h5:not(:first-child) {
@@ -49,10 +55,67 @@
 }
 
 .local-availabilityhelper__marker {
+    position: relative;
     border-inline-start: .25rem solid var(--bs-warning, #f0ad4e);
     padding-inline-start: .5rem;
 }
 
 .local-availabilityhelper__marker--danger {
     border-inline-start-color: var(--bs-danger, #dc3545);
+}
+
+.local-availabilityhelper__marker--warning {
+    border-inline-start-color: var(--bs-warning, #ffc107);
+}
+
+.local-availabilityhelper__marker--info {
+    border-inline-start-color: var(--bs-info, #0dcaf0);
+}
+
+.local-availabilityhelper__callout {
+    position: absolute;
+    z-index: 20;
+    inset-block-start: 0;
+    inset-inline-end: calc(100% + .75rem);
+    width: clamp(14rem, 22vw, 20rem);
+    margin: 0;
+    font-size: .875rem;
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .14);
+}
+
+.local-availabilityhelper__callout::after {
+    position: absolute;
+    inset-block-start: 1rem;
+    inset-inline-start: 100%;
+    width: 0;
+    height: 0;
+    border-block: .5rem solid transparent;
+    border-inline-start: .6rem solid currentColor;
+    content: "";
+    opacity: .35;
+}
+
+.local-availabilityhelper__callout strong {
+    display: block;
+    margin-bottom: .25rem;
+}
+
+.local-availabilityhelper__scenario-section {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+}
+
+@media (max-width: 1399.98px) {
+    .local-availabilityhelper__callout {
+        position: relative;
+        inset: auto;
+        width: auto;
+        margin-top: .75rem;
+        flex-basis: 100%;
+    }
+
+    .local-availabilityhelper__callout::after {
+        display: none;
+    }
 }
