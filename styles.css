@@ -76,7 +76,7 @@
     position: absolute;
     z-index: 20;
     inset-block-start: 0;
-    inset-inline-end: calc(100% + .75rem);
+    inset-inline-end: calc(100% + 1rem);
     width: clamp(14rem, 22vw, 20rem);
     margin: 0;
     font-size: .875rem;

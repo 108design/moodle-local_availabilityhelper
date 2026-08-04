@@ -62,6 +62,12 @@ const renderCallouts = (editor, findings) => {
     clearCallouts(editor);
     const grouped = new Map();
     findings.forEach(item => {
+        // Root-level findings describe the rule set as a whole. They belong in
+        // the summary, not beside the complete editor where a callout implies
+        // a more specific origin than the analyser can prove.
+        if (!item.path.length) {
+            return;
+        }
         const node = nodeForPath(editor, item.path);
         if (!node) {
             return;
