@@ -72,11 +72,14 @@
     border-inline-start-color: var(--bs-info, #0dcaf0);
 }
 
+.local-availabilityhelper__editor {
+    position: relative;
+}
+
 .local-availabilityhelper__callout {
     position: absolute;
     z-index: 20;
-    inset-block-start: 0;
-    inset-inline-end: calc(100% + 1rem + 15px);
+    inset: auto;
     width: clamp(14rem, 22vw, 20rem);
     margin: 0;
     font-size: .875rem;
@@ -85,14 +88,22 @@
 
 .local-availabilityhelper__callout::after {
     position: absolute;
-    inset-block-start: 1rem;
-    inset-inline-start: calc(100% + 1px);
+    top: 1rem;
+    left: calc(100% + 1px);
     width: 0;
     height: 0;
-    border-block: .5rem solid transparent;
-    border-inline-start: .6rem solid currentColor;
+    border-top: .5rem solid transparent;
+    border-bottom: .5rem solid transparent;
+    border-left: .6rem solid currentColor;
     content: "";
     opacity: .35;
+}
+
+.local-availabilityhelper__callout--rtl::after {
+    right: calc(100% + 1px);
+    left: auto;
+    border-right: .6rem solid currentColor;
+    border-left: 0;
 }
 
 .local-availabilityhelper__callout strong {

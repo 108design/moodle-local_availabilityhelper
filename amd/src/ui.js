@@ -21,6 +21,9 @@ let toggleButton;
 let latest;
 let report;
 
+const DESKTOP_CALLOUT_QUERY = '(min-width: 1400px)';
+const DESKTOP_CALLOUT_GAP = 31;
+
 const text = key => strings[key] || key;
 
 const pathText = path => path.length ?
@@ -70,6 +73,26 @@ const clearCallouts = editor => {
     });
 };
 
+const placeCallout = (editor, node, callout) => {
+    if (!window.matchMedia(DESKTOP_CALLOUT_QUERY).matches) {
+        node.append(callout);
+        return;
+    }
+
+    editor.classList.add('local-availabilityhelper__editor');
+    editor.append(callout);
+    const editorRect = editor.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    callout.style.top = `${nodeRect.top - editorRect.top + editor.scrollTop}px`;
+    if (window.getComputedStyle(editor).direction === 'rtl') {
+        callout.classList.add('local-availabilityhelper__callout--rtl');
+        callout.style.left = `${nodeRect.right - editorRect.left + DESKTOP_CALLOUT_GAP}px`;
+    } else {
+        callout.style.left = `${nodeRect.left - editorRect.left + editor.scrollLeft -
+            callout.offsetWidth - DESKTOP_CALLOUT_GAP}px`;
+    }
+};
+
 const renderCallouts = (editor, findings) => {
     clearCallouts(editor);
     const grouped = new Map();
@@ -112,7 +135,7 @@ const renderCallouts = (editor, findings) => {
             list.append(listItem);
         });
         callout.append(list);
-        node.append(callout);
+        placeCallout(editor, node, callout);
     });
 };
 
