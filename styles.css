@@ -72,8 +72,9 @@
     border-inline-start-color: var(--bs-info, #0dcaf0);
 }
 
-.local-availabilityhelper__callout {
-    position: fixed;
+.alert.local-availabilityhelper__callout {
+    position: absolute !important;
+    left: -335px;
     z-index: 20;
     inset: auto;
     width: clamp(14rem, 22vw, 20rem);
@@ -114,9 +115,10 @@
 }
 
 @media (max-width: 1399.98px) {
-    .local-availabilityhelper__callout {
-        position: relative;
+    .alert.local-availabilityhelper__callout {
+        position: relative !important;
         inset: auto;
+        left: auto;
         width: auto;
         margin-top: .75rem;
         flex-basis: 100%;
