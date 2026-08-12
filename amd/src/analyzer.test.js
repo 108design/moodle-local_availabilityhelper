@@ -56,6 +56,26 @@ describe('local_availabilityhelper/analyzer', () => {
         });
     });
 
+    it('warns once when every rule remains visible', () => {
+        const result = analyse({op: '&', c: [date, {...date, t: 20}]});
+
+        expect(result.findings).toContainEqual({
+            code: 'allrulesvisible',
+            severity: 'warning',
+            path: [],
+        });
+    });
+
+    it('treats visible unavailable text and media content as a problem', () => {
+        const result = analyse({op: '&', c: [date]}, {contentvisiblewhenunavailable: true});
+
+        expect(result.findings).toContainEqual({
+            code: 'visiblecontent',
+            severity: 'danger',
+            path: [],
+        });
+    });
+
     it('finds an any-cohort condition redundant beside a specific cohort', () => {
         const result = analyse({
             op: '!&',

@@ -28,6 +28,13 @@ const stableValue = value => {
 
 const isGroup = node => Boolean(node && Array.isArray(node.c) && typeof node.op === 'string');
 
+const allRulesRemainVisible = node => {
+    if (!isGroup(node)) {
+        return Boolean(node) && node.show !== false;
+    }
+    return node.c.length > 0 && node.c.every(allRulesRemainVisible);
+};
+
 const expression = node => {
     if (!isGroup(node)) {
         return `leaf:${JSON.stringify(stableValue(node))}`;
@@ -183,9 +190,10 @@ const analyseNode = (node, path, findings, root = false) => {
  * Analyses an availability JSON tree.
  *
  * @param {Object} tree Availability tree
+ * @param {{contentvisiblewhenunavailable?: boolean}} options Editor context
  * @returns {{state: string, findings: Array, incomplete: boolean}}
  */
-export const analyse = tree => {
+export const analyse = (tree, options = {}) => {
     const findings = [];
     const incomplete = Boolean(tree && Array.isArray(tree.errors) && tree.errors.length);
 
@@ -199,6 +207,11 @@ export const analyse = tree => {
         };
     }
     const state = analyseNode(tree, [], findings, true);
+
+    if (allRulesRemainVisible(tree)) {
+        addFinding(findings, options.contentvisiblewhenunavailable ? 'visiblecontent' : 'allrulesvisible',
+            options.contentvisiblewhenunavailable ? 'danger' : 'warning', []);
+    }
 
     const countTree = node => {
         if (!isGroup(node)) {
