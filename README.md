@@ -34,3 +34,9 @@ It does not use AI, store user data, or modify the saved availability JSON.
 - `amd/src/bootstrap.js`: orchestration and debouncing
 
 Install the repository contents as `local/availabilityhelper` in Moodle.
+
+## License
+
+108design Availability Helper Software License. This is a source-available commercial
+software license, not an open-source license. See [LICENSE.md](LICENSE.md) for
+the full terms.
