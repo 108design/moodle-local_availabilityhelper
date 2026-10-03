@@ -37,6 +37,4 @@ Install the repository contents as `local/availabilityhelper` in Moodle.
 
 ## License
 
-108design Availability Helper Software License. This is a source-available commercial
-software license, not an open-source license. See [LICENSE.md](LICENSE.md) for
-the full terms.
+This is a 108design source-available commercial software license, not an open-source license. See [LICENSE.md](https://github.com/108design/moodle-local_availabilityhelper/blob/main/LICENSE.md) for the full terms.
