@@ -40,3 +40,10 @@ $callbacks = [
         'callback' => [\local_availabilityhelper\local\admin_branding::class, 'head'],
     ],
 ];
+
+// Check signed plugin packages before Moodle replaces installed files.
+$callbacks[] = [
+    'hook' => \core\hook\after_config::class,
+    'callback' => [\local_availabilityhelper\local\update_guard::class, 'after_config'],
+    'priority' => 1002,
+];

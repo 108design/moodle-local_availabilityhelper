@@ -41,3 +41,5 @@ Bei einem KI-Aufruf übergibt das Plugin Regeltypen, Positionen, Negationen und 
 ## Lizenz
 
 Für den Helfer gilt die [108design Availability Helper Software License](LICENSE.md), eine kommerzielle Lizenz mit einsehbarem Quellcode.
+
+Diese Version ist unter der 108design Software License kostenlos erhältlich.

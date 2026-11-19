@@ -1,8 +1,22 @@
+<p align="center"><img src="docs/branding/logo.svg" alt="Availability Helper" width="125" height="125"></p>
+
 # Availability Helper for Moodle
 
 Availability Helper checks the draft in Moodle’s **Restrict access** editor. It shows which combinations of restrictions could allow access and points to rules that conflict or repeat each other.
 
 [Deutsch](README.de.md)
+
+<details>
+<summary>Screenshots</summary>
+
+<table>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/rule-analysis.jpg"><img src="docs/screenshots/rule-analysis.jpg" alt="Rule analysis" width="100%"></a><br><strong>Rule analysis</strong><br>Find conflicting conditions and jump to the affected rules.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/participant-preview.jpg"><img src="docs/screenshots/participant-preview.jpg" alt="Participant preview" width="100%"></a><br><strong>Participant preview</strong><br>Check whether Moodle grants a selected participant access to the saved activity.</td>
+</tr>
+</table>
+
+</details>
 
 ## Installation
 
@@ -41,3 +55,5 @@ An explicit AI request sends rule types, positions, logical polarity and known c
 ## License
 
 Availability Helper is distributed under the [108design Availability Helper Software License](LICENSE.md), a source-available commercial software license.
+
+This release is available free of charge under the 108design Software License.

@@ -1,0 +1,36 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+// This file is part of a 108design source-available software product.
+//
+// Copyright (C) 2026 Andreas Giesen <andreas@108design.com>
+//
+// Use and modification are permitted only under the Software License included
+// with this distribution. Redistribution and circumvention of Pro feature or
+// licensing restrictions are prohibited. See LICENSE.md for the full terms.
+
+/**
+ * Early independent update-package guard.
+ *
+ * @package local_availabilityhelper
+ * @copyright 2026 Andreas Giesen <andreas@108design.com>
+ * @license 108design source-available software license; see LICENSE.md
+ */
+namespace local_availabilityhelper\local;
+
+defined('MOODLE_INTERNAL') || die();
+
+/** Keep the update guard available independently of optional product hosts. */
+final class update_guard {
+    /**
+     * Check supported native update requests before any plugin files are replaced.
+     *
+     * @param \core\hook\after_config $hook Native early configuration hook.
+     * @return void
+     */
+    public static function after_config(\core\hook\after_config $hook): void {
+        if (!class_exists(\design108\update_guard\v1\guard::class, false)) {
+            require_once(dirname(__DIR__, 2) . '/update-guard.php');
+        }
+        \design108\update_guard\v1\guard::enter('local_availabilityhelper', dirname(__DIR__, 2));
+    }
+}
