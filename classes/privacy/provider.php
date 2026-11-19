@@ -18,14 +18,16 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2026 Andreas Giesen <andreas@108design.com>
  * @license    See LICENSE.md for the full terms.
  */
-final class provider implements \core_privacy\local\metadata\null_provider {
+final class provider implements \core_privacy\local\metadata\provider {
     /**
-     * Returns the reason why no personal data is stored.
+     * Disclose use of Moodle's AI subsystem.
      *
-     * @return string
+     * @param \core_privacy\local\metadata\collection $collection Metadata collection
+     * @return \core_privacy\local\metadata\collection
      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    public static function get_metadata(\core_privacy\local\metadata\collection $collection): \core_privacy\local\metadata\collection {
+        $collection->add_subsystem_link('core_ai', [], 'privacy:metadata:core_ai');
+        return $collection;
     }
 }
 

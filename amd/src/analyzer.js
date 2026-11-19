@@ -15,50 +15,30 @@
  */
 
 import {compare} from './relations';
+import {asLiteral, conditionSignature, groupLogic, hasBooleanNegation, isGroup} from './rules';
+import {prove} from './model';
 
-const PRESENTATION_KEYS = new Set(['errors', 'show', 'showc']);
-
-const stableValue = value => {
-    if (Array.isArray(value)) {
-        return value.map(stableValue);
+const allRulesRemainVisible = tree => {
+    if (!isGroup(tree) || !tree.c.length) {
+        return false;
     }
-    if (value && typeof value === 'object') {
-        return Object.keys(value)
-            .filter(key => !PRESENTATION_KEYS.has(key))
-            .sort()
-            .reduce((result, key) => {
-                result[key] = stableValue(value[key]);
-                return result;
-            }, {});
+    if (tree.op === '&' || tree.op === '!|') {
+        return Array.isArray(tree.showc) && tree.showc.length === tree.c.length && tree.showc.every(show => show === true);
     }
-    return value;
+    return tree.show === true;
 };
 
-const isGroup = node => Boolean(node && Array.isArray(node.c) && typeof node.op === 'string');
-
-const allRulesRemainVisible = node => {
+const expression = (node, inheritedNot) => {
     if (!isGroup(node)) {
-        return Boolean(node) && node.show !== false;
+        return JSON.stringify([inheritedNot, conditionSignature(node)]);
     }
-    return node.c.length > 0 && node.c.every(allRulesRemainVisible);
+    if (!node.c.length) {
+        return 'empty';
+    }
+    const {negated, and} = groupLogic(node, inheritedNot);
+    return node.c.length === 1 ? expression(node.c[0], negated) :
+        `[${and},${node.c.map(child => expression(child, negated)).sort().join(',')}]`;
 };
-
-const expression = node => {
-    if (!isGroup(node)) {
-        return `leaf:${JSON.stringify(stableValue(node))}`;
-    }
-
-    const negated = node.op.startsWith('!');
-    const operator = node.op.replace('!', '') === '|' ? 'or' : 'and';
-    const children = node.c.map(expression).sort();
-    let result = children.length === 1 ? children[0] : `${operator}(${children.join(',')})`;
-    if (negated) {
-        result = result.startsWith('not(') ? result.slice(4, -1) : `not(${result})`;
-    }
-    return result;
-};
-
-const opposite = signature => signature.startsWith('not(') ? signature.slice(4, -1) : `not(${signature})`;
 
 const addFinding = (findings, code, severity, path, relatedPaths) => {
     const finding = {code, severity, path};
@@ -68,23 +48,13 @@ const addFinding = (findings, code, severity, path, relatedPaths) => {
     findings.push(finding);
 };
 
-const literal = node => {
-    let current = node;
-    let negated = false;
-    while (isGroup(current) && current.c.length === 1) {
-        negated = negated !== current.op.startsWith('!');
-        current = current.c[0];
-    }
-    return isGroup(current) ? null : {predicate: current, negated};
-};
-
-const analyseNode = (node, path, findings, root = false) => {
+const analyseNode = (node, path, findings, root = false, inheritedNot = false) => {
     if (!isGroup(node)) {
         return 'possible';
     }
 
-    const negated = node.op.startsWith('!');
-    const operator = node.op.replace('!', '') === '|' ? 'or' : 'and';
+    const {negated, and} = groupLogic(node, inheritedNot);
+    const ownNegation = node.op.startsWith('!');
     const children = node.c;
 
     if (children.length === 0) {
@@ -95,62 +65,56 @@ const analyseNode = (node, path, findings, root = false) => {
         return 'possible';
     }
 
-    if (!negated && children.length === 1 && !root) {
+    if (!ownNegation && children.length === 1 && !root) {
         addFinding(findings, 'redundantgroup', 'warning', path);
     }
-    if (negated && children.length > 1) {
+    if (ownNegation && children.length > 1) {
         addFinding(findings, 'tipnegatedgroup', 'tip', path);
     }
-    if (negated && children.some(child => isGroup(child) && child.op.startsWith('!'))) {
+    if (ownNegation && children.some(child => isGroup(child) && child.op.startsWith('!'))) {
         addFinding(findings, 'tipdoublenegation', 'tip', path);
     }
 
-    const literals = children.map(literal);
+    const literals = children.map(child => asLiteral(child, negated));
     const specificCohorts = literals.filter(item => item && !item.negated &&
         item.predicate.type === 'cohort' && item.predicate.id !== undefined);
-    if (!negated && operator === 'and' && specificCohorts.length > 1) {
+    if (and && specificCohorts.length > 1) {
         addFinding(findings, 'tipallcohorts', 'tip', path);
     }
 
-    const states = children.map((child, index) => analyseNode(child, [...path, index], findings));
+    const states = children.map((child, index) => analyseNode(child, [...path, index], findings, false, negated));
     const seen = new Map();
     const redundant = new Set();
-    let complementFound = false;
-    let semanticContradiction = false;
-    let semanticTautology = false;
     let complementPair = null;
     let semanticContradictionPair = null;
     let semanticTautologyPair = null;
 
     children.forEach((child, index) => {
-        const signature = expression(child);
-        if (seen.has(signature)) {
+        const opposite = hasBooleanNegation(child) ? seen.get(expression(child, !negated)) : undefined;
+        if (opposite !== undefined && !complementPair) {
+            complementPair = [opposite, index];
+        }
+        const key = expression(child, negated);
+        if (seen.has(key)) {
             addFinding(findings, 'duplicate', 'warning', [...path, index]);
-        }
-        if (seen.has(opposite(signature))) {
-            complementFound = true;
-            complementPair = complementPair || [seen.get(opposite(signature)), index];
-        }
-        if (!seen.has(signature)) {
-            seen.set(signature, index);
+        } else {
+            seen.set(key, index);
         }
     });
 
     for (let leftIndex = 0; leftIndex < children.length; leftIndex++) {
         for (let rightIndex = leftIndex + 1; rightIndex < children.length; rightIndex++) {
-            const relation = compare(children[leftIndex], children[rightIndex]);
+            const relation = compare(children[leftIndex], children[rightIndex], negated);
             if (!relation) {
                 continue;
             }
-            semanticContradiction = semanticContradiction || relation.incompatible;
-            semanticTautology = semanticTautology || relation.exhaustive;
             if (relation.incompatible && !semanticContradictionPair) {
                 semanticContradictionPair = [leftIndex, rightIndex];
             }
             if (relation.exhaustive && !semanticTautologyPair) {
                 semanticTautologyPair = [leftIndex, rightIndex];
             }
-            if (operator === 'and') {
+            if (and) {
                 if (relation.leftImpliesRight) {
                     redundant.add(rightIndex);
                 } else if (relation.rightImpliesLeft) {
@@ -166,19 +130,18 @@ const analyseNode = (node, path, findings, root = false) => {
     redundant.forEach(index => addFinding(findings, 'semanticredundant', 'warning', [...path, index]));
 
     let state = 'possible';
-    if (complementFound || (operator === 'and' && semanticContradiction) ||
-            (operator === 'or' && semanticTautology)) {
-        state = operator === 'and' ? 'never' : 'always';
-        let code = operator === 'and' ? 'contradiction' : 'tautology';
-        if (!complementFound) {
-            code = operator === 'and' ? 'semanticcontradiction' : 'semantictautology';
+    const pair = complementPair || (and ? semanticContradictionPair : semanticTautologyPair);
+    if (pair) {
+        state = and ? 'never' : 'always';
+        let code = and ? 'contradiction' : 'tautology';
+        if (!complementPair) {
+            code = and ? 'semanticcontradiction' : 'semantictautology';
         }
-        const pair = complementPair || (operator === 'and' ? semanticContradictionPair : semanticTautologyPair);
-        const relatedPaths = pair ? pair.map(index => [...path, index]) : null;
+        const relatedPaths = pair.map(index => [...path, index]);
         addFinding(findings, code, 'danger', path, relatedPaths);
-    } else if (operator === 'and' && states.includes('never')) {
+    } else if (and && states.includes('never')) {
         state = 'never';
-    } else if (operator === 'or' && states.includes('always')) {
+    } else if (!and && states.includes('always')) {
         state = 'always';
     } else if (states.every(childState => childState === 'always')) {
         state = 'always';
@@ -188,9 +151,6 @@ const analyseNode = (node, path, findings, root = false) => {
         state = 'invalid';
     }
 
-    if (negated) {
-        state = state === 'always' ? 'never' : state === 'never' ? 'always' : state;
-    }
     return state;
 };
 
@@ -198,25 +158,65 @@ const analyseNode = (node, path, findings, root = false) => {
  * Analyses an availability JSON tree.
  *
  * @param {Object} tree Availability tree
- * @param {{contentvisiblewhenunavailable?: boolean}} options Editor context
+ * @param {{contentvisiblewhenunavailable?: boolean, inputErrors?: Array}} options Editor context
  * @returns {{state: string, findings: Array, incomplete: boolean}}
  */
 export const analyse = (tree, options = {}) => {
     const findings = [];
-    const incomplete = Boolean(tree && Array.isArray(tree.errors) && tree.errors.length);
+    // The Core date conflict describes a complete set of dates. Check that
+    // tree too. Other editor errors can indicate missing or invalid values.
+    const errors = (Array.isArray(tree?.errors) ? tree.errors : [])
+        .filter(error => error !== 'availability_date:error_dateconflict');
+    const incomplete = errors.length > 0;
 
-    // Core only exposes an aggregate error list. Without knowing which child is
-    // incomplete, suppress every other finding to avoid premature conclusions.
     if (incomplete) {
+        const pending = [...errors];
+        let pendingInput = false;
+        const codes = {
+            'availability_grade:error_backwardrange': 'graderange',
+            'availability_grade:error_invalidnumber': 'gradevalue',
+            'availability_grade:error_selectgradeid': 'gradeitem',
+        };
+        const inputMessages = {
+            'availability:error_list_nochildren': 'emptygroup',
+            'availability_completion:error_selectcmid': 'completionitem',
+        };
+        for (const {path, code, deferred} of options.inputErrors ?? []) {
+            const index = pending.indexOf(code);
+            if (index < 0) {
+                continue;
+            }
+            pending.splice(index, 1);
+            if (deferred) {
+                pendingInput = true;
+                continue;
+            }
+            const kind = codes[code] ?? inputMessages[code] ?? 'invalidrule';
+            const rule = path.reduce((node, position) => node?.c?.[position], tree);
+            findings.push({code: kind, severity: codes[code] ? 'danger' : 'warning', path, rule});
+        }
+        if (pending.length) {
+            findings.push({code: 'incomplete', severity: 'warning', path: []});
+        }
         return {
             state: 'invalid',
-            findings: [{code: 'incomplete', severity: 'warning', path: []}],
+            findings,
             incomplete: true,
+            pendingInput,
         };
     }
-    const state = analyseNode(tree, [], findings, true);
+    let state = analyseNode(tree, [], findings, true);
+    if (state === 'possible' && isGroup(tree) && tree.c.length) {
+        const proof = prove(tree);
+        state = proof.state;
+        if (state === 'never' || state === 'always') {
+            addFinding(findings, state === 'never' ? 'treecontradiction' : 'treetautology', 'danger', []);
+        } else if (proof.limited) {
+            addFinding(findings, 'treechecklimited', 'tip', []);
+        }
+    }
 
-    if (allRulesRemainVisible(tree)) {
+    if (state !== 'always' && state !== 'invalid' && allRulesRemainVisible(tree)) {
         addFinding(findings, options.contentvisiblewhenunavailable ? 'visiblecontent' : 'allrulesvisible',
             options.contentvisiblewhenunavailable ? 'danger' : 'warning', []);
     }
@@ -237,7 +237,7 @@ export const analyse = (tree, options = {}) => {
     }
 
     if ((state === 'always' || state === 'never') &&
-            !findings.some(item => item.code === state)) {
+            !findings.some(item => item.code === state || item.code === 'treecontradiction' || item.code === 'treetautology')) {
         findings.unshift({code: state, severity: 'danger', path: []});
     }
 

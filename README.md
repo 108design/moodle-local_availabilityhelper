@@ -1,44 +1,43 @@
-# Moodle Availability Helper
+# Availability Helper for Moodle
 
-Understand complex access restrictions before you save them. Availability Helper
-adds live explanations to Moodle's **Restrict access** editor and helps you find
-conditions that contradict each other, repeat a rule or make content always or
-never available.
+Availability Helper checks the draft in Moodle’s **Restrict access** editor. It shows which combinations of restrictions could allow access and points to rules that conflict or repeat each other.
 
-## Requirements and installation
+[Deutsch](README.de.md)
 
-- Moodle 4.5–5.2, with the PHP version required by that Moodle release.
-- Install as `local/availabilityhelper`, then complete installation through
-  **Site administration → Notifications**.
+## Installation
 
-## Using the helper
+Requires Moodle 4.5, 5.0, 5.1, 5.2 or 5.3 and the PHP version required by the Moodle installation. Enable availability restrictions in Moodle.
 
-1. Edit an activity or course section and open **Restrict access**.
-2. Add or change conditions as usual. The helper displays feedback beside the rules.
-3. Choose **Check rule set** for a detailed report and scenario overview.
-4. Adjust your restrictions and refresh the analysis before saving.
+Install the ZIP in **Site administration → Plugins → Install plugins**, or place the plugin in `local/availabilityhelper` and complete the installation in **Site administration → Notifications**.
 
-The helper explains the rule set; it does not change your conditions automatically.
-You keep control of what is saved.
+## Check rules in the editor
 
-## What it checks
+Open an activity or course section for editing, expand **Restrict access** and select **Open Availability Helper**.
 
-- Duplicate rules, empty groups and unnecessary nesting.
-- Contradictory conditions and groups that are always or never satisfied.
-- Supported relationships between profile-field and cohort conditions.
-- Incomplete conditions and content that remains visible despite restrictions.
+- **Analysis** updates after a short pause in editing. Each access path lists the conditions that must pass together. For activities, the report also includes the saved rules of the containing section as they were when the editor opened. Follow a rule link to jump to that condition. Select a coloured symbol beside a rule to toggle its findings.
+- **Participant preview** checks access to the saved activity for an actively enrolled account. Select the account to see the access decision and any reasons Moodle reports. Course editors need the preview permission, permission to view participants and access to all groups. Moodle managers receive the plugin’s preview permission by default.
+- **Help** explains the report, preview and settings. The information icons open the relevant topic.
 
-The scenario overview shows how combinations of conditions affect access. It
-evaluates rule logic rather than looking up individual users. Small rule sets show
-all possible combinations; larger sets show representative cases. Other condition
-types receive structural checks where their meaning cannot be established.
+Try adding a condition that requires an activity to be completed. In a nested group, add a condition that requires the same activity to remain incomplete. If both are mandatory, the helper shows the conflict and links both conditions. Edit and save the rules as usual in Moodle.
 
-## Privacy
+### Limits of the analysis
 
-Analysis runs in the browser without an external service. The plugin stores no
-personal data. Test important restrictions with users in the relevant roles as well
-as reviewing the analysis.
+The helper detects structural issues such as empty groups and duplicates. It can also recognise known relationships, for example between date limits or completion states for the same activity. Unfamiliar conditions remain open in the logic analysis. For extensions such as Certificate Issued, the participant preview uses Moodle’s actual access decision. The detail of the reason depends on what the condition supplies to Moodle.
+
+The scenario table uses assumed rule outcomes and shows representative cases for larger trees. The participant preview checks access to the activity itself. Features inside an activity can apply their own restrictions.
+
+## Optional AI
+
+AI is off by default. A site administrator can enable it in **Site administration → Plugins → Local plugins → Availability Helper**. Moodle needs a configured text-generation provider. From Moodle 5.0 onwards, the administrator can use Moodle’s provider order or select a specific provider instance. Moodle’s AI policy and context settings apply.
+
+**Explain with AI** describes the displayed access paths. When the analysis finds a proven conflict, **Show AI suggestions** offers possible goals and points to rules to review. Review the suggested goals in the editor before changing any rules.
+
+## Data handling
+
+Rule analysis runs in the browser. Participant searches and previews run on the Moodle site. The plugin does not store preview results or log in as the selected account.
+
+An explicit AI request sends rule types, positions, logical polarity and known conflict pairs through Moodle’s AI subsystem. Conflict suggestions may also use symbolic completion states. The request excludes course and activity names, activity identifiers, participant preview data and other rule values. Moodle’s AI subsystem handles the requesting account and context and logs AI requests and responses.
 
 ## License
 
-This is a 108design source-available commercial software license, not an open-source license. See [LICENSE.md](https://github.com/108design/moodle-local_availabilityhelper/blob/main/LICENSE.md) for the full terms.
+Availability Helper is distributed under the [108design Availability Helper Software License](LICENSE.md), a source-available commercial software license.

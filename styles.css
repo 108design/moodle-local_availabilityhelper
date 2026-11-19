@@ -8,31 +8,8 @@
  * licensing restrictions are prohibited. See LICENSE.md for the full terms.
  */
 
-.local-availabilityhelper {
-    margin-top: 1rem;
-}
-
-.local-availabilityhelper__summary {
-    margin-bottom: .75rem;
-}
-
-.local-availabilityhelper__summary .alert {
-    margin-bottom: .5rem;
-}
-
-.local-availabilityhelper__actions {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    margin-top: .75rem;
-}
-
-.local-availabilityhelper__details {
-    margin-top: .75rem;
-}
-
-.local-availabilityhelper__details[hidden] {
-    display: none;
+.local-availabilityhelper__entry {
+    margin-inline-start: .5rem;
 }
 
 .local-availabilityhelper__details .alert ul,
@@ -41,8 +18,9 @@
     padding-inline-start: 1.25rem;
 }
 
-.local-availabilityhelper__details h5:not(:first-child) {
-    margin-top: 1.25rem;
+.local-availabilityhelper__explanation {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .local-availabilityhelper__legend {
@@ -61,56 +39,107 @@
 .local-availabilityhelper__scenarios td {
     text-align: center;
     vertical-align: middle;
-    white-space: nowrap;
+}
+
+.local-availabilityhelper__scenarios { table-layout: fixed; }
+.local-availabilityhelper__scenarios th:last-child { width: 4.25rem; }
+.local-availabilityhelper__scenarios--compact th:first-child { width: 3.5rem; }
+.local-availabilityhelper__scenario-icon { font-size: 1.125em; }
+.local-availabilityhelper__scenario-conditions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .15rem .65rem;
+    justify-content: center;
+    margin: .35rem 0;
+}
+.local-availabilityhelper__scenario-conditions li { white-space: nowrap; }
+.local-availabilityhelper__enhanced .local-availabilityhelper__managed-input > .badge.bg-warning,
+.local-availabilityhelper__enhanced .local-availabilityhelper__managed-input > .availability-inner > .availability-none > .badge.bg-warning {
+    display: none !important;
 }
 
 .local-availabilityhelper__marker {
     position: relative;
-    border-inline-start: .25rem solid var(--bs-warning, #f0ad4e);
-    padding-inline-start: .5rem;
+}
+
+.local-availabilityhelper__marker::before {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: .25rem;
+    background: var(--local-availabilityhelper-marker);
+    content: '';
+    pointer-events: none;
 }
 
 .local-availabilityhelper__marker--danger {
-    border-inline-start-color: var(--bs-danger, #dc3545);
+    --local-availabilityhelper-marker: var(--bs-danger, #dc3545);
 }
 
 .local-availabilityhelper__marker--warning {
-    border-inline-start-color: var(--bs-warning, #ffc107);
+    --local-availabilityhelper-marker: var(--bs-warning, #ffc107);
 }
 
 .local-availabilityhelper__marker--info {
-    border-inline-start-color: var(--bs-info, #0dcaf0);
+    --local-availabilityhelper-marker: var(--bs-info, #0dcaf0);
 }
 
 .alert.local-availabilityhelper__callout {
-    position: absolute !important;
-    left: -335px;
-    z-index: 20;
-    inset: auto;
-    width: clamp(14rem, 22vw, 20rem);
+    position: absolute;
+    z-index: 1;
+    inline-size: clamp(14rem, 22vw, 20rem);
+    max-inline-size: calc(100vw - 1rem);
+    max-block-size: calc(100vh - 1rem);
+    overflow: auto;
     margin: 0;
     font-size: .875rem;
     box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .14);
+    pointer-events: none;
 }
 
-.local-availabilityhelper__callout::after {
+.alert.local-availabilityhelper__callout[hidden] {
+    display: none !important;
+}
+
+.local-availabilityhelper__finding-actions {
     position: absolute;
-    top: 1rem;
-    left: calc(100% + 1px);
-    width: 0;
-    height: 0;
-    border-top: .5rem solid transparent;
-    border-bottom: .5rem solid transparent;
-    border-left: .6rem solid currentColor;
-    content: "";
-    opacity: .35;
+    z-index: 21;
+    inset-block-start: .25rem;
+    inset-inline-end: calc(100% + .25rem);
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
 }
 
-.local-availabilityhelper__callout--rtl::after {
-    right: calc(100% + 1px);
-    left: auto;
-    border-right: .6rem solid currentColor;
-    border-left: 0;
+.local-availabilityhelper__finding-anchor {
+    position: relative;
+    display: flex;
+}
+
+.local-availabilityhelper__finding-anchor > .btn.local-availabilityhelper__finding-toggle {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    padding: 0;
+    border-radius: 50%;
+    color: #fff !important;
+    background-color: var(--local-availabilityhelper-marker) !important;
+    border-color: var(--local-availabilityhelper-marker) !important;
+}
+
+/* Core hides aria-hidden descendants inside the availability field. */
+.local-availabilityhelper__finding-anchor > .local-availabilityhelper__finding-toggle > .fa {
+    display: inline-block;
+    text-shadow: 0 0 2px #212529, 0 1px #212529;
+}
+
+.local-availabilityhelper__finding-toggle:is(:hover, :focus-visible, [aria-expanded="true"]) {
+    outline: 1px solid currentColor;
+    outline-offset: -2px;
 }
 
 .local-availabilityhelper__callout strong {
@@ -124,17 +153,189 @@
     border-top: 1px solid var(--bs-border-color, #dee2e6);
 }
 
-@media (max-width: 1399.98px) {
-    .alert.local-availabilityhelper__callout {
-        position: relative !important;
-        inset: auto;
-        left: auto;
-        width: auto;
-        margin-top: .75rem;
-        flex-basis: 100%;
-    }
+.local-availabilityhelper__rule-link {
+    font-size: inherit;
+    text-decoration: underline;
+    white-space: normal;
+}
 
-    .local-availabilityhelper__callout::after {
-        display: none;
+.local-availabilityhelper__rule-target,
+.availability-item[tabindex="-1"]:focus,
+.availability-list[tabindex="-1"]:focus {
+    outline: 2px solid var(--bs-primary, #0f6cbf);
+    outline-offset: 2px;
+}
+
+.local-availabilityhelper__preview-label {
+    display: block;
+    margin-block-end: .25rem;
+    font-size: .875rem;
+    font-weight: 700;
+}
+
+.local-availabilityhelper__preview-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.local-availabilityhelper__preview-account {
+    flex: 1 1 18rem;
+    min-width: 0;
+    max-width: 30rem;
+}
+
+.local-availabilityhelper__preview-account .form-autocomplete-input {
+    width: 100%;
+    margin-inline-end: 0 !important;
+}
+
+.local-availabilityhelper__preview-account .form-autocomplete-input input {
+    min-width: 0 !important;
+}
+
+.local-availabilityhelper__preview-account .form-autocomplete-selection,
+.local-availabilityhelper__preview-account--selected .form-autocomplete-input,
+.local-availabilityhelper__preview-selected[hidden] {
+    display: none !important;
+}
+
+.local-availabilityhelper__preview-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    position: relative;
+    padding-inline-end: 2.5rem;
+}
+
+.local-availabilityhelper__preview-clear {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: .25rem;
+    min-width: 2rem;
+    padding: 0;
+    line-height: 1;
+    font-size: 1.25rem;
+}
+
+.local-availabilityhelper__preview-reason {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Editor help follows the shared 108design topic panel. */
+body.local-availabilityhelper-admin-help-page #page.drawers { transition: none; }
+.local-availabilityhelper-sidepanel[hidden],
+.local-availabilityhelper-sidepanel :is([role="tabpanel"], .local-availabilityhelper__details, .alert)[hidden],
+.local-availabilityhelper-sidepanel-backdrop[hidden] { display: none !important; }
+.local-availabilityhelper-sidepanel {
+    position: fixed;
+    inset-block-start: var(--local-availabilityhelper-panel-top, 4rem);
+    inset-block-end: 1rem;
+    inset-inline-end: 1rem;
+    width: var(--local-availabilityhelper-panel-width, 26rem);
+    max-width: calc(100vw - 2rem);
+    display: flex;
+    flex-direction: column;
+    background: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #212529);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: var(--bs-border-radius, .5rem);
+    box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .12);
+    /* Above page/editor action bars (1025/1026), below the navbar and modals. */
+    z-index: 1027;
+}
+.local-availabilityhelper-sidepanel-backdrop {
+    position: fixed;
+    inset: var(--local-availabilityhelper-panel-top, 4rem) 0 0;
+    background: rgba(0, 0, 0, .25);
+    z-index: 1026;
+}
+.local-availabilityhelper-sidepanel-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 1rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    overflow-wrap: anywhere;
+}
+.local-availabilityhelper .nav-tabs {
+    margin-block-start: .75rem;
+}
+.local-availabilityhelper .nav-link {
+    margin-inline: 0;
+    font-size: .875rem;
+    padding-inline: .5rem;
+}
+.local-availabilityhelper-help-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.25rem;
+    align-items: center;
+    gap: .35rem 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    flex: 0 0 auto;
+}
+.local-availabilityhelper-help-header > h2 {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.local-availabilityhelper-help-close {
+    grid-column: 2;
+    grid-row: 2;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+.local-availabilityhelper-help-content {
+    padding-block-start: 1rem;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+}
+@media (min-width: 1400px) {
+    body.local-availabilityhelper-admin-help-page.local-availabilityhelper-sidepanel-open #page {
+        margin-inline-end: calc(var(--local-availabilityhelper-panel-width, 26rem) + 2rem);
     }
 }
+@media (max-width: 991.98px) {
+    .local-availabilityhelper-sidepanel {
+        inset-inline: .75rem;
+        inset-block-end: .5rem;
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* Older Core has no exclusive drawer API. Mask only while help is open; preserve native drawer state/preferences. */
+body.local-availabilityhelper-help-legacy-drawers.local-availabilityhelper-sidepanel-open .drawer.drawer-right {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.local-availabilityhelper-help-choices .form-label {
+    display: block; font-size: .75rem; font-weight: 600; line-height: 1.4;
+    color: var(--bs-secondary-color, #6c757d); margin: 0 0 .35rem;
+}
+.local-availabilityhelper-help-choices select { width: 100%; max-width: 100%; }
+.local-availabilityhelper-help-content article > h3 {
+    font-size: 1rem; font-weight: 600; line-height: 1.4; margin: 0 0 .75rem;
+}
+
+.local-availabilityhelper-help-brand {
+    grid-column: 2;
+    grid-row: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: center;
+    width: 1.5625rem;
+    height: 1.5rem;
+    cursor: default;
+}
+.local-availabilityhelper-help-brand img { display: block; width: 100%; height: 100%; object-fit: contain; }

@@ -8,7 +8,7 @@
  * licensing restrictions are prohibited. See LICENSE.md for the full terms.
  */
 
-import {compare} from './relations';
+import {compile, evaluate, isConsistent} from './model';
 
 /**
  * Builds abstract truth-table scenarios for an availability tree.
@@ -16,82 +16,15 @@ import {compare} from './relations';
  * @module local_availabilityhelper/scenarios
  */
 
-const PRESENTATION_KEYS = new Set(['errors', 'show', 'showc']);
 const FULL_TABLE_LIMIT = 4;
-
-const stableValue = value => {
-    if (Array.isArray(value)) {
-        return value.map(stableValue);
-    }
-    if (value && typeof value === 'object') {
-        return Object.keys(value)
-            .filter(key => !PRESENTATION_KEYS.has(key))
-            .sort()
-            .reduce((result, key) => {
-                result[key] = stableValue(value[key]);
-                return result;
-            }, {});
-    }
-    return value;
-};
-
-const signature = node => JSON.stringify(stableValue(node));
-
-const collectAtoms = (node, path, atoms, indexes) => {
-    if (!node || !Array.isArray(node.c)) {
-        const key = signature(node);
-        if (!indexes.has(key)) {
-            indexes.set(key, atoms.length);
-            atoms.push({node, path, key});
-        }
-        return;
-    }
-    node.c.forEach((child, index) => collectAtoms(child, [...path, index], atoms, indexes));
-};
-
-const evaluate = (node, values, indexes) => {
-    if (!node || !Array.isArray(node.c)) {
-        return values[indexes.get(signature(node))];
-    }
-    const operator = node.op.replace('!', '') === '|' ? 'or' : 'and';
-    let result = operator === 'and' ? node.c.every(child => evaluate(child, values, indexes)) :
-        node.c.some(child => evaluate(child, values, indexes));
-    if (node.op.startsWith('!')) {
-        result = !result;
-    }
-    return result;
-};
-
-const isConsistent = (atoms, values) => {
-    for (let left = 0; left < atoms.length; left++) {
-        for (let right = left + 1; right < atoms.length; right++) {
-            const relation = compare(atoms[left].node, atoms[right].node);
-            if (!relation) {
-                continue;
-            }
-            if (relation.incompatible && values[left] && values[right]) {
-                return false;
-            }
-            if (relation.exhaustive && !values[left] && !values[right]) {
-                return false;
-            }
-            if (relation.leftImpliesRight && values[left] && !values[right]) {
-                return false;
-            }
-            if (relation.rightImpliesLeft && values[right] && !values[left]) {
-                return false;
-            }
-        }
-    }
-    return true;
-};
+const REPRESENTATIVE_PREDICATE_LIMIT = 24;
 
 const allAssignments = count => Array.from({length: 2 ** count}, (_, number) =>
     Array.from({length: count}, (alsoUnused, index) => Boolean(number & (1 << index))));
 
 const representativeAssignments = count => {
     const rows = [Array(count).fill(false), Array(count).fill(true)];
-    for (let index = 0; index < count; index++) {
+    for (let index = 0; index < Math.min(count, REPRESENTATIVE_PREDICATE_LIMIT); index++) {
         const only = Array(count).fill(false);
         only[index] = true;
         rows.push(only);
@@ -117,16 +50,15 @@ const representativeAssignments = count => {
  * @returns {{atoms: Array, rows: Array, complete: boolean, filtered: boolean}}
  */
 export const create = tree => {
-    const atoms = [];
-    const indexes = new Map();
-    collectAtoms(tree, [], atoms, indexes);
+    const model = compile(tree);
+    const {atoms} = model;
     if (!atoms.length) {
         return {atoms, rows: [], complete: true, filtered: false};
     }
 
     const complete = atoms.length <= FULL_TABLE_LIMIT;
     const assignments = complete ? allAssignments(atoms.length) : representativeAssignments(atoms.length);
-    const consistent = assignments.filter(values => isConsistent(atoms, values));
-    const rows = consistent.map(values => ({values, result: evaluate(tree, values, indexes)}));
+    const consistent = assignments.filter(values => isConsistent(model, values));
+    const rows = consistent.map(values => ({values, result: evaluate(model.root, values)}));
     return {atoms, rows, complete, filtered: consistent.length !== assignments.length};
 };

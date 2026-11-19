@@ -11,17 +11,17 @@
 import {create} from './scenarios';
 
 describe('local_availabilityhelper/scenarios', () => {
-    it('evaluates nested negation', () => {
+    it('applies positive relationships through nested double negation', () => {
         const result = create({
             op: '!&',
-            c: [{type: 'cohort'}, {type: 'cohort', id: 42}],
+            c: [{op: '!&', c: [{type: 'xp', requiredlvl: 5}, {type: 'xp', requiredlvl: 7}]}],
         });
 
         expect(result.atoms).toHaveLength(2);
         expect(result.rows).toHaveLength(3);
         expect(result.rows).toEqual(expect.arrayContaining([
-            {values: [false, false], result: true},
-            {values: [true, true], result: false},
+            {values: [false, false], result: false},
+            {values: [true, true], result: true},
         ]));
         expect(result.filtered).toBe(true);
     });
@@ -47,5 +47,22 @@ describe('local_availabilityhelper/scenarios', () => {
 
         expect(result.complete).toBe(false);
         expect(result.rows.length).toBeLessThan(2 ** 5);
+    });
+
+    it('represents an OR of both Certificate Issued polarities as blocked when both deny access', () => {
+        const rule = {type: 'certificateissued', templateid: 8};
+        const result = create({op: '|', c: [rule, {op: '!&', c: [rule]}]});
+
+        expect(result.atoms).toHaveLength(2);
+        expect(result.atoms[1].negated).toBe(true);
+        expect(result.rows).toContainEqual({values: [false, false], result: false});
+    });
+
+    it('leaves genuine date complements as one predicate', () => {
+        const rule = {type: 'date', d: '>=', t: 10};
+        const result = create({op: '|', c: [rule, {op: '!&', c: [rule]}]});
+
+        expect(result.atoms).toHaveLength(1);
+        expect(result.rows.every(row => row.result)).toBe(true);
     });
 });

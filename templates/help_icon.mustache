@@ -1,0 +1,12 @@
+{{!
+    Copyright (C) 2026 Andreas Giesen. See LICENSE.md.
+    Native popover with an information icon and an exact help-topic link.
+}}
+<button type="button" class="btn btn-link p-0 icon-no-margin help-icon text-info local-availabilityhelper-help-icon"
+{{^legacy}}data-bs-container="body" data-bs-toggle="popover" data-bs-custom-class="help-popover"
+    data-bs-placement="{{#ltr}}right{{/ltr}}{{^ltr}}left{{/ltr}}"
+    data-bs-content="{{text}} {{completedoclink}}" data-bs-html="true"
+{{/legacy}}{{#legacy}}data-container="body" data-toggle="popover"
+    data-placement="{{#ltr}}right{{/ltr}}{{^ltr}}left{{/ltr}}"
+    data-content="{{text}} {{completedoclink}}" data-html="true" data-trigger="focus"
+{{/legacy}}aria-label="{{title}}">{{#pix}}{{infoicon}}, core, {{{alt}}}{{/pix}}</button>

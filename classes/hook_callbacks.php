@@ -33,7 +33,11 @@ final class hook_callbacks {
             return;
         }
 
-        $PAGE->requires->js_call_amd('local_availabilityhelper/bootstrap', 'init');
+        $PAGE->requires->js_call_amd('local_availabilityhelper/bootstrap', 'init', [
+            \local_availabilityhelper\local\editor_help::preview_cmid(),
+            \local_availabilityhelper\local\editor_help::section(),
+            \local_availabilityhelper\local\editor_help::explanation(),
+        ]);
     }
 }
 
