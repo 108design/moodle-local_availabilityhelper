@@ -14,6 +14,10 @@ Availability Helper checks the draft in Moodle’s **Restrict access** editor. I
 <td width="50%" valign="top"><a href="docs/screenshots/rule-analysis.jpg"><img src="docs/screenshots/rule-analysis.jpg" alt="Rule analysis" width="100%"></a><br><strong>Rule analysis</strong><br>Find conflicting conditions and jump to the affected rules.</td>
 <td width="50%" valign="top"><a href="docs/screenshots/participant-preview.jpg"><img src="docs/screenshots/participant-preview.jpg" alt="Participant preview" width="100%"></a><br><strong>Participant preview</strong><br>Check whether Moodle grants a selected participant access to the saved activity.</td>
 </tr>
+<tr>
+<td width="50%" valign="top"><a href="docs/screenshots/scenario-table.jpg"><img src="docs/screenshots/scenario-table.jpg" alt="Scenario table" width="100%"></a><br><strong>Scenario table</strong><br>Compare eight possible outcomes for three restrictions.</td>
+<td width="50%" valign="top"><a href="docs/screenshots/ai-suggestion.jpg"><img src="docs/screenshots/ai-suggestion.jpg" alt="AI suggestion" width="100%"></a><br><strong>AI suggestion</strong><br>See a possible way to resolve a conflict and open the rules involved.</td>
+</tr>
 </table>
 
 </details>
@@ -42,7 +46,7 @@ The scenario table uses assumed rule outcomes and shows representative cases for
 
 ## Optional AI
 
-AI is off by default. A site administrator can enable it in **Site administration → Plugins → Local plugins → Availability Helper**. Moodle needs a configured text-generation provider. From Moodle 5.0 onwards, the administrator can use Moodle’s provider order or select a specific provider instance. Moodle’s AI policy and context settings apply.
+AI is off by default. A site administrator can enable it in **Site administration → Plugins → Local plugins → Availability Helper**. The AI features are available on Moodle 4.5 and later with a configured text-generation provider. In automatic mode, Moodle chooses the provider. From Moodle 5.0, administrators can also select a specific provider instance in Availability Helper. Moodle’s AI policy and context settings apply.
 
 **Explain with AI** describes the displayed access paths. When the analysis finds a proven conflict, **Show AI suggestions** offers possible goals and points to rules to review. Review the suggested goals in the editor before changing any rules.
 
