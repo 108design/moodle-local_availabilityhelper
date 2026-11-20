@@ -57,6 +57,9 @@ final class editor_help {
             ];
             self::$topics[] = 'explanation';
         }
+        $PAGE->requires->css(new \moodle_url('/local/availabilityhelper/styles/context_help.css', [
+            'rev' => get_config('local_availabilityhelper', 'version'),
+        ]));
         $PAGE->add_body_class('local-availabilityhelper-admin-help-page');
     }
 
