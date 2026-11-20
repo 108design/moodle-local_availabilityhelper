@@ -76,8 +76,10 @@
 "/docs/branding" export-ignore -export-subst
 "/docs/branding/logo.svg" export-ignore -export-subst
 "/docs/screenshots" export-ignore -export-subst
+"/docs/screenshots/ai-suggestion.jpg" export-ignore -export-subst
 "/docs/screenshots/participant-preview.jpg" export-ignore -export-subst
 "/docs/screenshots/rule-analysis.jpg" export-ignore -export-subst
+"/docs/screenshots/scenario-table.jpg" export-ignore -export-subst
 "/lang" -export-ignore -export-subst
 "/lang/de" -export-ignore -export-subst
 "/lang/de/local_availabilityhelper.php" -export-ignore -export-subst
@@ -90,7 +92,9 @@
 "/release-manifest.json" -export-ignore -export-subst
 "/release-signature.txt" -export-ignore -export-subst
 "/settings.php" -export-ignore -export-subst
+"/styles" -export-ignore -export-subst
 "/styles.css" -export-ignore -export-subst
+"/styles/context_help.css" -export-ignore -export-subst
 "/templates" -export-ignore -export-subst
 "/templates/help_icon.mustache" -export-ignore -export-subst
 "/update-guard.php" -export-ignore -export-subst
