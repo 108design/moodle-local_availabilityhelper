@@ -28,7 +28,7 @@ Die Szenarioübersicht zeigt angenommene Regelzustände und bei größeren Regel
 
 ## Optionale KI
 
-KI ist standardmäßig ausgeschaltet. Die Website-Administration kann sie unter **Plugins → Lokale Plugins → Helfer für Voraussetzungen** einschalten. Moodle braucht dafür einen konfigurierten Anbieter zur Textgenerierung. Ab Moodle 5.0 lässt sich eine bestimmte Anbieterinstanz auswählen. In der automatischen Einstellung gilt Moodles Anbieterreihenfolge. Außerdem gelten die KI-Richtlinie und die Kontexteinstellungen von Moodle.
+KI ist standardmäßig ausgeschaltet. Die Website-Administration kann sie unter **Plugins → Lokale Plugins → Helfer für Voraussetzungen** einschalten. Mit einem in Moodle konfigurierten Anbieter zur Textgenerierung sind die KI-Funktionen unter Moodle 4.5 und neuer verfügbar. In der automatischen Einstellung wählt Moodle den Anbieter. Ab Moodle 5.0 kann die Website-Administration im Helfer auch eine bestimmte Anbieterinstanz auswählen. Außerdem gelten die KI-Richtlinie und die Kontexteinstellungen von Moodle.
 
 **Mit KI erklären** erläutert die angezeigten Zugangswege. Bei einem nachgewiesenen Widerspruch bietet **KI-Vorschläge anzeigen** mögliche Ziele an und verweist auf Regeln, die Du prüfen kannst. Entscheide im Editor, welche Anpassung zu Deinem Kurs passt.
 
