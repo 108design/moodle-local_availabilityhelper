@@ -90,7 +90,6 @@ $string['gradebetween'] = 'at least {$a->min}% and below {$a->max}%';
 $string['provisional'] = 'Provisional analysis';
 $string['rulepath'] = 'Restriction {$a}';
 $string['privacy:metadata:core_ai'] = 'For AI explanations and suggestions, Moodle AI processes the requesting account identifier, context, prompt and response.';
-
 $string['treecontradiction'] = 'No combination of the nested restrictions allows access.';
 $string['treetautology'] = 'The nested restrictions allow access for every combination.';
 $string['treechecklimited'] = 'The rule tree is too large for a complete check in the editor.';
@@ -177,7 +176,7 @@ $string['helptopics'] = 'Help topics';
 $string['helpmore'] = 'More in the help panel';
 $string['topic_analysis'] = 'Checking the rules';
 $string['topic_analysis_body'] = 'Select “Open Availability Helper” next to “Restrict access” to see findings and access paths for your draft. The analysis updates after a short pause in editing and includes the containing section’s rules as saved when the activity editor opened. Select a rule reference to jump to that rule. Section rules open in a new tab. If there are many rules, expand a scenario to see its individual conditions.';
-$string['topic_analysis_review'] = 'Missing inputs in a new restriction are flagged when you add another restriction, save or select “Check inputs”. Use the coloured icons to open and close findings next to their restrictions. The Analysis tab lists all findings.';
+$string['topic_analysis_review'] = 'Missing inputs in a new restriction are flagged when you add another restriction, save or select “Check inputs”. Use the coloured icons to open and close findings next to their restrictions. The analysis tab lists all findings.';
 $string['topic_explanation'] = 'AI explanations and suggestions';
 $string['topic_explanation_body'] = 'When the analysis finds a proven conflict, AI suggests possible goals. Each suggestion shows which restriction to review and which one to keep. Follow the links to inspect those restrictions and make changes in the editor. Moodle sends rule types, positions, proven conflicts and the configured state of completion rules to its AI provider. Names, activity identifiers and participant data stay in Moodle. Moodle logs the request and response under your account.';
 $string['detail_explanation'] = 'AI explanations and suggestions';
@@ -204,8 +203,6 @@ $string['updateguard_operation'] = 'This combination of installation actions is 
 $string['updateguard_policy'] = 'This package does not match the installed edition or permitted package profile.';
 $string['updateguard_signature'] = 'The publisher signature or package contents could not be verified.';
 $string['updateguard_unchanged'] = 'This request did not replace plugin files.';
-
-// Optional information before native package confirmation.
 $string['updateinfo_heading'] = 'Package information: {$a}';
 $string['updateinfo_verified'] = 'The embedded publisher record matches the installed release line.';
 $string['updateinfo_missing'] = 'This package has no embedded publisher verification record.';
