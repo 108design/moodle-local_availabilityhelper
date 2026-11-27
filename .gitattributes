@@ -38,10 +38,8 @@
 "/amd/src" -export-ignore -export-subst
 "/amd/src/adapter_yui.js" -export-ignore -export-subst
 "/amd/src/analyzer.js" -export-ignore -export-subst
-"/amd/src/analyzer.test.js" -export-ignore -export-subst
 "/amd/src/bootstrap.js" -export-ignore -export-subst
 "/amd/src/branches.js" -export-ignore -export-subst
-"/amd/src/branches.test.js" -export-ignore -export-subst
 "/amd/src/explanation.js" -export-ignore -export-subst
 "/amd/src/help.js" -export-ignore -export-subst
 "/amd/src/model.js" -export-ignore -export-subst
@@ -50,7 +48,6 @@
 "/amd/src/relations.js" -export-ignore -export-subst
 "/amd/src/rules.js" -export-ignore -export-subst
 "/amd/src/scenarios.js" -export-ignore -export-subst
-"/amd/src/scenarios.test.js" -export-ignore -export-subst
 "/amd/src/sidepanel.js" -export-ignore -export-subst
 "/amd/src/ui.js" -export-ignore -export-subst
 "/classes" -export-ignore -export-subst
@@ -99,6 +96,11 @@
 "/styles/context_help.css" -export-ignore -export-subst
 "/templates" -export-ignore -export-subst
 "/templates/help_icon.mustache" -export-ignore -export-subst
+"/tests" -export-ignore -export-subst
+"/tests/js" -export-ignore -export-subst
+"/tests/js/analyzer.test.js" -export-ignore -export-subst
+"/tests/js/branches.test.js" -export-ignore -export-subst
+"/tests/js/scenarios.test.js" -export-ignore -export-subst
 "/update-guard.php" -export-ignore -export-subst
 "/update-notice.php" -export-ignore -export-subst
 "/version.php" -export-ignore -export-subst
