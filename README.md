@@ -44,7 +44,7 @@ The helper detects structural issues such as empty groups and duplicates. It can
 
 The scenario table uses assumed rule outcomes and shows representative cases for larger trees. The participant preview checks access to the activity itself. Features inside an activity can apply their own restrictions.
 
-## Optional AI
+## Optional AI (beta)
 
 AI is off by default. A site administrator can enable it in **Site administration → Plugins → Local plugins → Availability Helper**. The AI features are available on Moodle 4.5 and later with a configured text-generation provider. In automatic mode, Moodle chooses the provider. From Moodle 5.0, administrators can also select a specific provider instance in Availability Helper. Moodle’s AI policy and context settings apply.
 
