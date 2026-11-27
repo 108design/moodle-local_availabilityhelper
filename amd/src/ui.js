@@ -760,7 +760,7 @@ export const initialise = async(editor, cmid, evaluateDraft, explanation, review
     const helpPanel = document.getElementById('local-availabilityhelper-help');
     const closeButton = createButton('btn btn-secondary btn-sm local-availabilityhelper-help-close', 'panelclose');
     closeButton.setAttribute('aria-label', text('panelclose'));
-    closeButton.textContent = '×';
+    closeButton.innerHTML = '<svg class="design108-panel-close-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" style="display:block;flex:none;margin:auto" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>';
     closeButton.dataset.ahPanelClose = '';
     const brand = document.getElementById('local-availabilityhelper-header-brand');
     if (brand) {
