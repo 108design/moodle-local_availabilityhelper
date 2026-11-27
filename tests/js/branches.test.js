@@ -12,8 +12,8 @@
  * with this distribution. See LICENSE.md for the full terms.
  */
 
-import {analyseBranches} from './branches';
-import {compare} from './relations';
+import {analyseBranches} from 'local_availabilityhelper/branches';
+import {compare} from 'local_availabilityhelper/relations';
 
 const all = (...c) => ({op: '&', c});
 const any = (...c) => ({op: '|', c});

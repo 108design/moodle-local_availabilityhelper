@@ -13,7 +13,7 @@
  * licensing restrictions are prohibited. See LICENSE.md for the full terms.
  */
 
-import {analyse} from './analyzer';
+import {analyse} from 'local_availabilityhelper/analyzer';
 
 describe('local_availabilityhelper/analyzer', () => {
     const date = {type: 'date', d: '>=', t: 10};

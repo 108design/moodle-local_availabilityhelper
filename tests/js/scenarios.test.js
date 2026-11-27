@@ -13,7 +13,7 @@
  * licensing restrictions are prohibited. See LICENSE.md for the full terms.
  */
 
-import {create} from './scenarios';
+import {create} from 'local_availabilityhelper/scenarios';
 
 describe('local_availabilityhelper/scenarios', () => {
     it('applies positive relationships through nested double negation', () => {
