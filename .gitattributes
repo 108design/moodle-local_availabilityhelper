@@ -104,3 +104,4 @@
 "/update-guard.php" -export-ignore -export-subst
 "/update-notice.php" -export-ignore -export-subst
 "/version.php" -export-ignore -export-subst
+"/.github" export-ignore -export-subst
